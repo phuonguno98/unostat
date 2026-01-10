@@ -1,0 +1,49 @@
+# MIT License
+#
+# Copyright (c) 2026 Nguyen Thanh Phuong
+# Licensed under the MIT License. See LICENSE file for details.
+
+# Binaries
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test output
+*.out
+coverage.txt
+profile.out
+
+# Logs
+*.log
+
+# OS Specific
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDEs / Editors
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/golangci-lint.schema.json
+.idea/
+*.swp
+*.swo
+
+# Project Specific
+uploads/*
+!uploads/.gitkeep
+*.code-workspace
+
+# AI agents
+.github/copilot-instructions.md
+.agent/rules/unostat.md
+
+# Build Artifacts
+dist/
+*.syso

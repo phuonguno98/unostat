@@ -1,0 +1,70 @@
+{
+    // Go Configuration
+    "go.useLanguageServer": true,
+    "go.lintTool": "golangci-lint",
+    "go.lintOnSave": "package",
+    "go.lintFlags": [
+        "--fast"
+    ],
+    "go.formatTool": "gofmt",
+    "go.toolsManagement.autoUpdate": true,
+    "go.testTimeout": "30s",
+    "go.testFlags": [
+        "-v",
+        "-race"
+    ],
+    "go.coverOnSave": false,
+    "go.coverageDecorator": {
+        "type": "gutter",
+        "coveredHighlightColor": "rgba(64,128,64,0.5)",
+        "uncoveredHighlightColor": "rgba(128,64,64,0.25)",
+        "coveredGutterStyle": "blockgreen",
+        "uncoveredGutterStyle": "blockred"
+    },
+    // Gopls (Language Server) Advanced Settings
+    "gopls": {
+        "usePlaceholders": true,
+        "completeUnimported": true,
+        "staticcheck": true,
+        "matcher": "Fuzzy",
+        "diagnosticsDelay": "500ms",
+        "symbolMatcher": "fuzzy",
+        "build.buildFlags": [
+            "-tags=integration"
+        ]
+    },
+    // Editor Settings for Go
+    "[go]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        },
+        "editor.snippetSuggestions": "top",
+        "editor.suggest.snippetsPreventQuickSuggestions": false
+    },
+    // General Editor Improvements
+    "editor.rulers": [
+        100,
+        120
+    ],
+    "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs": true,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.eol": "\n",
+    "files.exclude": {
+        "**/.git": true,
+        "**/.DS_Store": true,
+        "**/bin": false,
+        "**/vendor": true
+    },
+    "search.exclude": {
+        "**/vendor": true,
+        "**/bin": false,
+        "**/.git": true
+    },
+    "explorer.openEditors.visible": 1,
+    "yaml.schemas": {
+        "./.vscode/golangci-lint.schema.json": ".golangci.yml"
+    }
+}

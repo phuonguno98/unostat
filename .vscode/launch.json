@@ -1,0 +1,54 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Server",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/server",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "UNOSTAT_LOG_LEVEL": "debug",
+                "UNOSTAT_PORT": "8080"
+            },
+            "args": []
+        },
+        {
+            "name": "Launch CLI (Default)",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/unostat",
+            "cwd": "${workspaceFolder}",
+            "args": []
+        },
+        {
+            "name": "Launch CLI (List)",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/unostat",
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "list"
+            ]
+        },
+        {
+            "name": "Test Current File",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${file}",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Test Current Package",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${fileDirname}",
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

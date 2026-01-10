@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="UnoStat is a lightweight, cross-platform system performance monitoring tool written in Go. Specialized for performance testing to track real-time CPU, RAM, Disk Utilization (busy time), Await, and Network Bandwidth with CSV export capability.">
+    <title>UnoStat Dashboard</title>
+    <link rel="icon" type="image/x-icon" href="images/unostat.ico">
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <img src="images/unostat.png" alt="UnoStat" class="brand-logo">
+                <h1>UnoStat</h1>
+            </div>
+
+            <div class="sidebar-section">
+                <nav class="sidebar-nav">
+                    <a href="#" class="nav-item active" id="navDashboard">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" class="nav-item" id="navSettings">
+                        <i class="fa-solid fa-gear"></i>
+                        <span>Settings</span>
+                    </a>
+                </nav>
+            </div>
+
+            <div class="sidebar-section">
+                <button class="btn btn-primary btn-full" id="uploadBtn">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Upload Data
+                </button>
+                <input type="file" id="fileInput" accept=".csv" multiple hidden>
+            </div>
+
+            <div class="sidebar-section files-section">
+                <!-- Quick Stats -->
+                <div class="stats-overview" id="statsOverview">
+                    <div class="stat-card transparent">
+                        <div class="stat-icon"><i class="fa-solid fa-file-waveform"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-label">Total Files</span>
+                            <span class="stat-value" id="statsTotalFiles">0</span>
+                        </div>
+                        <button class="btn-icon sm dangerous" id="sidebarClearAllBtn" title="Delete All Files">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <h3 class="section-title">
+                    <span>Loaded Files</span>
+                </h3>
+                <div class="files-list" id="filesList">
+                    <!-- Files will be injected here -->
+                    <div class="empty-state-sm">No files loaded</div>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <p id="sidebarVersion">Loading version...</p>
+                <p class="copyright">© 2026 Nguyen Thanh Phuong</p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Toolbar -->
+            <header class="top-bar">
+                <div class="bar-left">
+                    <div class="page-header-group">
+                        <h2 class="page-title" id="pageTitle">Performance Graph</h2>
+                        <p class="page-subtitle" id="pageSubtitle"></p>
+                    </div>
+                </div>
+                <div class="bar-right" id="dashboardToolbar">
+                    <div class="date-range-picker" id="filtersSection">
+                        <div class="input-group">
+                            <i class="fa-regular fa-calendar"></i>
+                            <input type="datetime-local" id="timeFrom" title="Start Time" step="1">
+                            <span class="separator">to</span>
+                            <input type="datetime-local" id="timeTo" title="End Time" step="1">
+                        </div>
+                        <button class="btn btn-icon" id="applyFilters" title="Apply Filter">
+                            <i class="fa-solid fa-filter"></i>
+                        </button>
+                        <button class="btn btn-icon" id="resetFilters" title="Reset">
+                            <i class="fa-solid fa-rotate-right"></i>
+                        </button>
+                    </div>
+                    <button class="btn btn-outline" id="exportAllBtn">
+                        <i class="fa-solid fa-download"></i> Export all graphs
+                    </button>
+                </div>
+            </header>
+
+            <!-- Main Content Wrapper -->
+            <div class="content-wrapper">
+
+                <!-- VIEW: Dashboard -->
+                <div id="dashboardView">
+                    <!-- Empty State (Upload Prompt) -->
+                    <div id="uploadPrompt" class="upload-dropzone">
+                        <div class="dropzone-content">
+                            <div class="icon-circle">
+                                <i class="fa-solid fa-file-csv"></i>
+                            </div>
+                            <h3>No Data to Display</h3>
+                            <p>Upload your performance metrics CSV files to generate visual analytics.</p>
+                            <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">
+                                Browse Files
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Charts Grid -->
+                    <div class="charts-grid" id="chartsContainer">
+                        <!-- Charts will be injected here -->
+                    </div>
+                </div>
+
+                <!-- VIEW: Settings -->
+                <div id="settingsView" class="hidden">
+                    <div class="settings-panel">
+                        <div class="settings-group">
+                            <h3>Display Preferences</h3>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <label>Smooth Lines</label>
+                                    <p>Enable curved lines for charts (Bezier curves)</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="settingSmoothLines" checked>
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <label>Show Data Points</label>
+                                    <p>Display individual dots for data values</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="settingShowPoints">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <label>Fill Area</label>
+                                    <p>Fill color under the line charts</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="settingFillArea" checked>
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="settings-group danger-zone">
+                            <h3>Data Management</h3>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <label class="text-danger">Reset All Data</label>
+                                    <p>Clear all uploaded files and reset the dashboard state. This action cannot be
+                                        undone.</p>
+                                </div>
+                                <button class="btn btn-outline" id="clearAllDataBtn"
+                                    style="color: var(--danger); border-color: var(--danger);">
+                                    <i class="fa-solid fa-trash"></i> Clear Data
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="settings-group">
+                            <h3>About System</h3>
+                            <div class="about-info">
+                                <div class="info-row">
+                                    <span class="label">Product Name</span>
+                                    <span class="value">UnoStat - Lightweight System Performance Monitoring for
+                                        Performance Testing</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="label">Version</span>
+                                    <span class="value" id="settingsVersion">Loading...</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="label">Developer</span>
+                                    <span class="value">Nguyen Thanh Phuong</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="label">Email</span>
+                                    <span class="value">phuonguno@outlook.com</span>
+                                </div>
+                                <div class="info-row copyright-row">
+                                    <p>Copyright © 2026 Nguyen Thanh Phuong.</p>
+                                    <p class="license-note">Licensed under the MIT License.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Modal Removed -->
+
+    <script src="/static/app.js"></script>
+</body>
+
+</html>

@@ -333,7 +333,7 @@ func TestCSVExporter_FileRotation(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to open rotated file: %v", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	reader := csv.NewReader(f)
 	records, err := reader.ReadAll()
@@ -431,7 +431,7 @@ func TestCSVExporter_InvalidTimezone(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	outputPath := filepath.Join(tempDir, "test.csv")
 	metricsChan := make(chan *metrics.Snapshot, 10)

@@ -229,7 +229,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleIndex serves the main dashboard HTML file.
-func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
+func (s *Server) handleIndex(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	w.Header().Set("Pragma", "no-cache")
 	w.Header().Set("Expires", "0")
@@ -241,7 +241,11 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error: index.html not found", http.StatusInternalServerError)
 		return
 	}
-	defer indexFile.Close()
+	defer func() {
+		if err := indexFile.Close(); err != nil {
+			s.logger.Warn("Failed to close index.html", "error", err)
+		}
+	}()
 
 	if _, err := io.Copy(w, indexFile); err != nil {
 		s.logger.Error("Failed to serve index.html", "error", err)
@@ -249,13 +253,13 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleGetFiles returns a list of all loaded CSV files.
-func (s *Server) handleGetFiles(w http.ResponseWriter, r *http.Request) {
+func (s *Server) handleGetFiles(w http.ResponseWriter, _ *http.Request) {
 	files := s.dataService.GetFiles()
 	s.writeJSON(w, files)
 }
 
 // handleGetVersion returns version information from the version package.
-func (s *Server) handleGetVersion(w http.ResponseWriter, r *http.Request) {
+func (s *Server) handleGetVersion(w http.ResponseWriter, _ *http.Request) {
 	versionInfo := map[string]string{
 		"version": version.Version,
 		"commit":  version.Commit,
@@ -376,7 +380,7 @@ func (s *Server) handleDeleteFile(w http.ResponseWriter, r *http.Request) {
 
 // handleDeleteAllFiles removes all files from memory and disk.
 // This is a destructive operation used to reset the system state.
-func (s *Server) handleDeleteAllFiles(w http.ResponseWriter, r *http.Request) {
+func (s *Server) handleDeleteAllFiles(w http.ResponseWriter, _ *http.Request) {
 	// 1. Clear memory
 	s.dataService.DeleteAll()
 

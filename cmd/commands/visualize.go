@@ -94,7 +94,7 @@ func createServerInstance(uploadDir string, logger *slog.Logger) (*server.Server
 	return server.NewServer(absUploadDir, logger)
 }
 
-func runVisualize(cmd *cobra.Command, args []string) error {
+func runVisualize(_ *cobra.Command, _ []string) error {
 	// Initialize logger (reuse logic similar to start command but we can simple it here or respect globals)
 	// We will respect global 'logLevel' and 'logFile' from root.go
 	logger := InitLogger(logLevel, logFile)

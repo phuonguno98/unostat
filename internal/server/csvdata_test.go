@@ -211,7 +211,7 @@ func TestCSVDataService_LazyLoading(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	csvContent := "Timestamp,Val\n2023-01-01 00:00:00,10.0"
 	filePath := filepath.Join(tempDir, "lazy.csv")
@@ -253,7 +253,7 @@ func TestCSVDataService_MaxFilesLimit(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	service := NewCSVDataService(logger)
@@ -286,7 +286,7 @@ func TestCSVDataService_Downsampling(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	// Create CSV with 2500 rows > 2000 max points
 	var sb strings.Builder

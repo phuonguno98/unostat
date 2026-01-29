@@ -6,6 +6,7 @@ on:
     tags: ["v*"]
   pull_request:
     branches: ["main"]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -25,11 +26,8 @@ jobs:
           go-version: "1.25"
           cache: true
 
-      - name: Install GolangCI-Lint (Source Build)
-        run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-
-      - name: Run Linter
-        run: golangci-lint run
+      - name: Install GolangCI-Lint v2.8.0
+        run: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.8.0
 
       - name: Run Tests
         run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
@@ -103,20 +101,40 @@ jobs:
           # Build Single Binary (unostat)
           go build -ldflags "$LDFLAGS" -o dist/unostat${{ matrix.ext }} ./cmd
 
+      - name: Install Zip (for Windows packaging)
+        if: matrix.goos == 'windows'
+        run: sudo apt-get update && sudo apt-get install -y zip
+
       - name: Package Assets
         shell: bash
         run: |
-          cd dist
           ASSET_NAME="unostat-${{ steps.vars.outputs.VERSION }}-${{ matrix.goos }}-${{ matrix.goarch }}"
+          PKG_DIR="dist/$ASSET_NAME"
 
+          mkdir -p $PKG_DIR
+
+          # Move binary
           if [ "${{ matrix.goos }}" = "windows" ]; then
-            zip "$ASSET_NAME.zip" unostat.exe
-            echo "ASSET_PATH=dist/$ASSET_NAME.zip" >> $GITHUB_ENV
-            echo "ASSET_CONTENT_TYPE=application/zip" >> $GITHUB_ENV
+            mv -v dist/unostat.exe $PKG_DIR/
           else
-            tar -czvf "$ASSET_NAME.tar.gz" unostat
+            mv -v dist/unostat $PKG_DIR/
+          fi
+
+          # Copy documentation and license
+          cp -v README.md LICENSE CHANGELOG.md $PKG_DIR/
+          if [ -d "docs" ]; then cp -r docs $PKG_DIR/; fi
+
+          # Debug: List package content
+          ls -R $PKG_DIR
+
+          # Archive
+          cd dist
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            zip -r "$ASSET_NAME.zip" "$ASSET_NAME"
+            echo "ASSET_PATH=dist/$ASSET_NAME.zip" >> $GITHUB_ENV
+          else
+            tar -czvf "$ASSET_NAME.tar.gz" "$ASSET_NAME"
             echo "ASSET_PATH=dist/$ASSET_NAME.tar.gz" >> $GITHUB_ENV
-            echo "ASSET_CONTENT_TYPE=application/gzip" >> $GITHUB_ENV
           fi
 
       - name: Upload Release Asset

@@ -85,7 +85,7 @@ func NewCSVExporter(cfg *config.Config, metricsChan <-chan *metrics.Snapshot, lo
 	// Get initial file size (if appending)
 	stat, err := file.Stat()
 	if err != nil {
-		file.Close() // Close if stat fails
+		_ = file.Close() // Close if stat fails, ignore error as we're already failing
 		return nil, fmt.Errorf("failed to stat file: %w", err)
 	}
 
@@ -182,7 +182,7 @@ func (e *CSVExporter) writeSnapshot(snapshot *metrics.Snapshot) error {
 	for _, cell := range row {
 		rowBytes += len(cell) + 1 // +1 for comma
 	}
-	rowBytes += 1 // +1 for newline approximation
+	rowBytes++ // +1 for newline approximation
 
 	if err := e.csvWriter.Write(row); err != nil {
 		return fmt.Errorf("failed to write row: %w", err)

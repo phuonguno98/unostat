@@ -171,7 +171,8 @@ func TestManager_StartStop(t *testing.T) {
 	// Consume metrics if any produced
 	go func() {
 		for range metricsChan {
-			// Drain
+			// Drain channel
+			continue
 		}
 	}()
 
@@ -236,6 +237,42 @@ func TestDiskCollector_ShouldMonitor(t *testing.T) {
 			device:  "sda",
 			want:    false,
 		},
+		// Test normalization: /dev/ prefix handling
+		{
+			name:    "Include with /dev/ prefix (Match)",
+			include: []string{"/dev/sda"},
+			exclude: nil,
+			device:  "sda",
+			want:    true,
+		},
+		{
+			name:    "Exclude with /dev/ prefix",
+			include: nil,
+			exclude: []string{"/dev/sda"},
+			device:  "sda",
+			want:    false,
+		},
+		{
+			name:    "Mixed: Include /dev/sda, test sda",
+			include: []string{"/dev/sda", "sdb"},
+			exclude: nil,
+			device:  "sda",
+			want:    true,
+		},
+		{
+			name:    "Mixed: Include /dev/sda, test sdb",
+			include: []string{"/dev/sda", "sdb"},
+			exclude: nil,
+			device:  "sdb",
+			want:    true,
+		},
+		{
+			name:    "Mixed: Include /dev/sda, test sdc",
+			include: []string{"/dev/sda", "sdb"},
+			exclude: nil,
+			device:  "sdc",
+			want:    false,
+		},
 	}
 
 	for _, tt := range tests {
@@ -243,6 +280,29 @@ func TestDiskCollector_ShouldMonitor(t *testing.T) {
 			c := NewDiskCollector(tt.include, tt.exclude)
 			if got := c.shouldMonitor(tt.device); got != tt.want {
 				t.Errorf("shouldMonitor(%q) = %v, want %v", tt.device, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestNormalizeDeviceName(t *testing.T) {
+	tests := []struct {
+		input string
+		want  string
+	}{
+		{"/dev/sda", "sda"},
+		{"/dev/sdb1", "sdb1"},
+		{"sda", "sda"},
+		{"nvme0n1", "nvme0n1"},
+		{"/dev/nvme0n1", "nvme0n1"},
+		{"", ""},
+		{"/dev/", ""},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			if got := normalizeDeviceName(tt.input); got != tt.want {
+				t.Errorf("normalizeDeviceName(%q) = %q, want %q", tt.input, got, tt.want)
 			}
 		})
 	}

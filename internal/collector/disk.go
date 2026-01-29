@@ -41,14 +41,35 @@ type DiskCollector struct {
 	firstRun       bool
 }
 
+// normalizeDeviceName strips /dev/ prefix from device names for consistent comparison.
+// This allows users to specify devices as shown in list-devices (/dev/sdd)
+// while internally matching against disk.IOCounters() format (sdd).
+func normalizeDeviceName(name string) string {
+	// Strip common prefixes
+	if len(name) >= 5 && name[:5] == "/dev/" {
+		return name[5:]
+	}
+	return name
+}
+
+// normalizeDeviceList normalizes all device names in a list.
+func normalizeDeviceList(devices []string) []string {
+	normalized := make([]string, len(devices))
+	for i, device := range devices {
+		normalized[i] = normalizeDeviceName(device)
+	}
+	return normalized
+}
+
 // NewDiskCollector creates a new disk collector instance.
 // includeDevices: list of device names to monitor (empty = all available)
 // excludeDevices: list of device names to exclude
+// Device names can be specified with or without /dev/ prefix (e.g., "sdd" or "/dev/sdd")
 func NewDiskCollector(includeDevices, excludeDevices []string) *DiskCollector {
 	return &DiskCollector{
 		prevStats:      make(map[string]metrics.DiskIOStats),
-		includeDevices: includeDevices,
-		excludeDevices: excludeDevices,
+		includeDevices: normalizeDeviceList(includeDevices),
+		excludeDevices: normalizeDeviceList(excludeDevices),
 		firstRun:       true,
 	}
 }

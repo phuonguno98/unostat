@@ -179,10 +179,21 @@ func (m *Manager) collectOnce() error {
 	mu.Lock()
 	disksEmpty := len(snapshot.Disks) == 0
 	netsEmpty := len(snapshot.Networks) == 0
+	disksCount := len(snapshot.Disks)
+	netsCount := len(snapshot.Networks)
 	mu.Unlock()
 
-	if disksEmpty || netsEmpty {
-		m.logger.Debug("Baseline collection completed")
+	m.logger.Debug("Collection completed",
+		"cpu", snapshot.CPU,
+		"memory", snapshot.Memory,
+		"disks_count", disksCount,
+		"networks_count", netsCount,
+	)
+
+	// Only skip if BOTH disks AND networks are empty (baseline collection)
+	// This allows metrics to be sent even when filtering results in only disk or only network data
+	if disksEmpty && netsEmpty {
+		m.logger.Debug("Baseline collection completed - both disks and networks empty")
 		return nil
 	}
 

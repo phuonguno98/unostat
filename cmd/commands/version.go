@@ -37,7 +37,7 @@ var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print the version number of UnoStat",
 	Long:  `All software has versions. This is UnoStat's`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		fmt.Printf("UnoStat %s\n", version.Version)
 		fmt.Printf("Commit: %s\n", version.Commit)
 		fmt.Printf("Built: %s\n", version.Date)

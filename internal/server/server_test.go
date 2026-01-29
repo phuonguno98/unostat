@@ -459,7 +459,7 @@ func TestServer_CORS(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	srv, err := NewServer(tempDir, logger)
@@ -508,7 +508,7 @@ func TestServer_Upload_InvalidFile(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	srv, err := NewServer(tempDir, logger)
@@ -526,7 +526,9 @@ func TestServer_Upload_InvalidFile(t *testing.T) {
 	if _, err := io.Copy(part, strings.NewReader("some text")); err != nil {
 		t.Fatal(err)
 	}
-	writer.Close()
+	if err := writer.Close(); err != nil {
+		t.Fatal(err)
+	}
 
 	req := httptest.NewRequest("POST", "/api/files/upload", body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
@@ -543,7 +545,7 @@ func TestServer_GetMetrics_NotFound(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	srv, err := NewServer(tempDir, logger)
@@ -565,7 +567,7 @@ func TestServer_GetData_NotFound(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	srv, err := NewServer(tempDir, logger)
@@ -587,7 +589,7 @@ func TestServer_DeleteNonExistentFile(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	srv, err := NewServer(tempDir, logger)
@@ -610,7 +612,7 @@ func TestServer_LoadFile_NotFound(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	srv, err := NewServer(tempDir, logger)
@@ -632,7 +634,7 @@ func TestServer_UploadDir(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	srv, err := NewServer(tempDir, logger)

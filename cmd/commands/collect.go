@@ -126,7 +126,7 @@ func buildConfig() (*config.Config, error) {
 }
 
 // runCollect is the main monitoring entry point.
-func runCollect(cmd *cobra.Command, args []string) error {
+func runCollect(_ *cobra.Command, _ []string) error {
 	// Build configuration from flags
 	var err error
 	cfg, err = buildConfig()

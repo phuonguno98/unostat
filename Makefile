@@ -21,12 +21,15 @@
 # SOFTWARE.
 
 
-.PHONY: all build server cli run-server generate test test-coverage lint fmt vet tidy vendor clean build-linux help
+.PHONY: all build server cli run-server generate test test-coverage lint fmt vet tidy vendor clean build-linux package help
 
+# Variables
 # Variables
 CLI_BINARY=bin/unostat
 GO=go
 LINT=golangci-lint
+DIST_DIR=dist
+PACKAGE_NAME=unostat-$(VERSION)-$(shell go env GOOS)-$(shell go env GOARCH)
 
 # Build Information (Inject these into the binary)
 # Note: These shell commands assume a Unix-like environment (Git Bash) or compatible Make on Windows.
@@ -43,7 +46,7 @@ ifeq ($(OS),Windows_NT)
     RM_CMD=if exist bin rmdir /s /q bin && if exist coverage.out del coverage.out
 else
     BINARY_EXT=
-    RM_CMD=rm -rf bin coverage.out
+    RM_CMD=rm -rf bin $(DIST_DIR) coverage.out
 endif
 
 # Targets
@@ -67,6 +70,16 @@ cli: winres
 build-linux:
 	@echo "Building binary for Linux..."
 	set GOOS=linux&& set GOARCH=amd64&& $(GO) build $(LDFLAGS) -o $(CLI_BINARY)$(BINARY_EXT) ./cmd
+
+# Packaging
+package: build
+	@echo "Packaging $(PACKAGE_NAME)..."
+	@mkdir -p $(DIST_DIR)/$(PACKAGE_NAME)
+	@cp $(CLI_BINARY)$(BINARY_EXT) $(DIST_DIR)/$(PACKAGE_NAME)/
+	@cp README.md LICENSE CHANGELOG.md $(DIST_DIR)/$(PACKAGE_NAME)/
+	@if [ -d "docs" ]; then cp -r docs $(DIST_DIR)/$(PACKAGE_NAME)/; fi
+	@tar -C $(DIST_DIR) -czvf $(DIST_DIR)/$(PACKAGE_NAME).tar.gz $(PACKAGE_NAME)
+	@echo "Package created: $(DIST_DIR)/$(PACKAGE_NAME).tar.gz"
 
 # Development helpers
 run-server:
@@ -141,4 +154,5 @@ help:
 	@echo "Project Management:"
 	@echo "  tidy            Go mod tidy"
 	@echo "  vendor          Go mod vendor"
+	@echo "  package         Package binary and docs into tar.gz"
 	@echo "  clean           Remove artifacts"

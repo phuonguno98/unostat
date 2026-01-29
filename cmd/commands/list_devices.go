@@ -51,7 +51,7 @@ func init() {
 	rootCmd.AddCommand(listDevicesCmd)
 }
 
-func runListDevices(cmd *cobra.Command, args []string) error {
+func runListDevices(_ *cobra.Command, _ []string) error {
 	fmt.Println("\n========================================")
 	fmt.Println("   UnoStat - Available Devices")
 	fmt.Println("========================================")
@@ -67,10 +67,10 @@ func runListDevices(cmd *cobra.Command, args []string) error {
 		fmt.Print(devices.FormatDisksTable(disks))
 		fmt.Println("\nExample usage:")
 		if len(disks) > 0 {
-			fmt.Printf("  unostat --include-disks=\"%s\"\n", disks[0].Name)
+			fmt.Printf("  unostat collect --include-disks=\"%s\"\n", disks[0].Name)
 		}
 		if len(disks) > 1 {
-			fmt.Printf("  unostat --exclude-disks=\"%s\"\n", disks[1].Name)
+			fmt.Printf("  unostat collect --exclude-disks=\"%s\"\n", disks[1].Name)
 		}
 	}
 
@@ -85,10 +85,10 @@ func runListDevices(cmd *cobra.Command, args []string) error {
 		fmt.Print(devices.FormatNetworksTable(networks))
 		fmt.Println("\nExample usage:")
 		if len(networks) > 0 {
-			fmt.Printf("  unostat --include-networks=\"%s\"\n", networks[0].Name)
+			fmt.Printf("  unostat collect --include-networks=\"%s\"\n", networks[0].Name)
 		}
 		if len(networks) > 1 {
-			fmt.Printf("  unostat --exclude-networks=\"%s\"\n", networks[1].Name)
+			fmt.Printf("  unostat collect --exclude-networks=\"%s\"\n", networks[1].Name)
 		}
 	}
 

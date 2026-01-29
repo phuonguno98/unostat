@@ -57,7 +57,7 @@ func TestListDisks(t *testing.T) {
 					{Device: "/dev/sdb1", Mountpoint: "/data", Fstype: "xfs"},
 				}, nil
 			},
-			mockUsage: func(path string) (*disk.UsageStat, error) {
+			mockUsage: func(_ string) (*disk.UsageStat, error) {
 				return &disk.UsageStat{Total: 1000}, nil
 			},
 			wantCount: 2,
@@ -78,7 +78,7 @@ func TestListDisks(t *testing.T) {
 					{Device: "/dev/sda1", Mountpoint: "/", Fstype: "ext4"},
 				}, nil
 			},
-			mockUsage: func(path string) (*disk.UsageStat, error) {
+			mockUsage: func(_ string) (*disk.UsageStat, error) {
 				return nil, errors.New("usage failed")
 			},
 			wantCount: 1,
@@ -92,7 +92,7 @@ func TestListDisks(t *testing.T) {
 					{Device: "/dev/sda1", Mountpoint: "/mnt", Fstype: "ext4"},
 				}, nil
 			},
-			mockUsage: func(path string) (*disk.UsageStat, error) {
+			mockUsage: func(_ string) (*disk.UsageStat, error) {
 				return &disk.UsageStat{Total: 1000}, nil
 			},
 			wantCount: 1,

@@ -56,14 +56,16 @@ type Server struct {
 }
 
 // NewServer creates a new web server.
-// It initializes the data service, scans for existing files (without loading content), and sets up routes.
-func NewServer(uploadDir string, logger *slog.Logger) (*Server, error) {
+// It initializes the data service with the specified timezone for parsing CSV timestamps,
+// scans for existing files (without loading content), and sets up routes.
+// timezone parameter: Use "Local" for server's local timezone, or IANA name (e.g., "Asia/Ho_Chi_Minh").
+func NewServer(uploadDir string, timezone string, logger *slog.Logger) (*Server, error) {
 	if err := os.MkdirAll(uploadDir, 0o755); err != nil {
 		return nil, fmt.Errorf("failed to create upload directory: %w", err)
 	}
 
 	s := &Server{
-		dataService: NewCSVDataService(logger),
+		dataService: NewCSVDataService(logger, timezone),
 		uploadDir:   uploadDir,
 		logger:      logger,
 		router:      mux.NewRouter(),

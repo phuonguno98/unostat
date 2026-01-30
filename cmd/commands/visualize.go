@@ -80,7 +80,7 @@ func init() {
 }
 
 // createServerInstance encapsulates server creation logic for testing.
-func createServerInstance(uploadDir string, logger *slog.Logger) (*server.Server, error) {
+func createServerInstance(uploadDir string, tz string, logger *slog.Logger) (*server.Server, error) {
 	// Set default upload directory
 	if uploadDir == "" {
 		uploadDir = getDefaultUploadDir()
@@ -91,7 +91,7 @@ func createServerInstance(uploadDir string, logger *slog.Logger) (*server.Server
 		return nil, fmt.Errorf("failed to resolve upload directory: %w", err)
 	}
 
-	return server.NewServer(absUploadDir, logger)
+	return server.NewServer(absUploadDir, tz, logger)
 }
 
 func runVisualize(_ *cobra.Command, _ []string) error {
@@ -104,8 +104,8 @@ func runVisualize(_ *cobra.Command, _ []string) error {
 		"port", visPort,
 	)
 
-	// Create server instance
-	server, err := createServerInstance(visUploadDir, logger)
+	// Create server instance (use global timezone from root command)
+	server, err := createServerInstance(visUploadDir, timezone, logger)
 	if err != nil {
 		return fmt.Errorf("failed to create server: %w", err)
 	}

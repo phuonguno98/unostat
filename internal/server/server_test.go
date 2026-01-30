@@ -51,7 +51,7 @@ func TestServer_ApiFlow(t *testing.T) {
 	}()
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
-	srv, err := NewServer(tempDir, logger)
+	srv, err := NewServer(tempDir, "Local", logger)
 	if err != nil {
 		t.Fatalf("NewServer() error = %v", err)
 	}
@@ -223,7 +223,7 @@ func TestServer_LoadExisting(t *testing.T) {
 	}
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
-	srv, err := NewServer(tempDir, logger)
+	srv, err := NewServer(tempDir, "Local", logger)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -247,7 +247,7 @@ func TestServer_DeleteAll(t *testing.T) {
 	}()
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	srv, err := NewServer(tempDir, logger)
+	srv, err := NewServer(tempDir, "Local", logger)
 	if err != nil {
 		t.Fatalf("NewServer failed: %v", err)
 	}
@@ -299,7 +299,7 @@ func TestServer_ServeIndex(t *testing.T) {
 	}()
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	srv, err := NewServer(tempDir, logger)
+	srv, err := NewServer(tempDir, "Local", logger)
 	if err != nil {
 		t.Fatalf("NewServer failed: %v", err)
 	}
@@ -338,7 +338,7 @@ func TestServer_ErrorHandling(t *testing.T) {
 	}()
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	srv, err := NewServer(tempDir, logger)
+	srv, err := NewServer(tempDir, "Local", logger)
 	if err != nil {
 		t.Fatalf("NewServer failed: %v", err)
 	}
@@ -367,7 +367,7 @@ func TestServer_GetMetricsAndData(t *testing.T) {
 	}()
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	srv, err := NewServer(tempDir, logger)
+	srv, err := NewServer(tempDir, "Local", logger)
 	if err != nil {
 		t.Fatalf("NewServer failed: %v", err)
 	}
@@ -431,7 +431,7 @@ func TestServer_LoadExistingFiles(t *testing.T) {
 	}
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	srv, err := NewServer(tempDir, logger)
+	srv, err := NewServer(tempDir, "Local", logger)
 	if err != nil {
 		t.Fatalf("NewServer failed: %v", err)
 	}
@@ -462,7 +462,7 @@ func TestServer_CORS(t *testing.T) {
 	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	srv, err := NewServer(tempDir, logger)
+	srv, err := NewServer(tempDir, "Local", logger)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -511,7 +511,7 @@ func TestServer_Upload_InvalidFile(t *testing.T) {
 	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	srv, err := NewServer(tempDir, logger)
+	srv, err := NewServer(tempDir, "Local", logger)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -548,7 +548,7 @@ func TestServer_GetMetrics_NotFound(t *testing.T) {
 	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	srv, err := NewServer(tempDir, logger)
+	srv, err := NewServer(tempDir, "Local", logger)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -570,7 +570,7 @@ func TestServer_GetData_NotFound(t *testing.T) {
 	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	srv, err := NewServer(tempDir, logger)
+	srv, err := NewServer(tempDir, "Local", logger)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -592,7 +592,7 @@ func TestServer_DeleteNonExistentFile(t *testing.T) {
 	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	srv, err := NewServer(tempDir, logger)
+	srv, err := NewServer(tempDir, "Local", logger)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -615,7 +615,7 @@ func TestServer_LoadFile_NotFound(t *testing.T) {
 	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	srv, err := NewServer(tempDir, logger)
+	srv, err := NewServer(tempDir, "Local", logger)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -637,7 +637,7 @@ func TestServer_UploadDir(t *testing.T) {
 	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	srv, err := NewServer(tempDir, logger)
+	srv, err := NewServer(tempDir, "Local", logger)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -77,14 +77,31 @@ type CSVDataService struct {
 	columnData map[string]*ColumnData
 	mu         sync.RWMutex
 	logger     *slog.Logger
+	timezone   *time.Location // Timezone for parsing timestamps in CSV files
 }
 
 // NewCSVDataService creates a new CSV data service.
-func NewCSVDataService(logger *slog.Logger) *CSVDataService {
+// timezone parameter specifies the timezone for parsing timestamps in CSV files.
+// Use "Local" for server's local timezone, or IANA timezone name (e.g., "America/New_York").
+func NewCSVDataService(logger *slog.Logger, timezone string) *CSVDataService {
+	var loc *time.Location
+	var err error
+
+	if timezone == "" || timezone == "Local" {
+		loc = time.Local
+	} else {
+		loc, err = time.LoadLocation(timezone)
+		if err != nil {
+			logger.Warn("Invalid timezone, falling back to Local", "timezone", timezone, "error", err)
+			loc = time.Local
+		}
+	}
+
 	return &CSVDataService{
 		files:      make(map[string]*CSVFile),
 		columnData: make(map[string]*ColumnData),
 		logger:     logger,
+		timezone:   loc,
 	}
 }
 
@@ -253,7 +270,7 @@ func (s *CSVDataService) processCSVFile(id, name, path string) (*ColumnData, *CS
 		}
 
 		// Parse Timestamp (Column 0)
-		t := parseTimestamp(record[0])
+		t := parseTimestamp(record[0], s.timezone)
 		if t.IsZero() {
 			continue
 		}
@@ -491,19 +508,27 @@ func (s *CSVDataService) DeleteAll() {
 	s.columnData = make(map[string]*ColumnData)
 }
 
-func parseTimestamp(s string) time.Time {
+// parseTimestamp parses a timestamp string using the specified location.
+func parseTimestamp(s string, loc *time.Location) time.Time {
 	s = strings.TrimSpace(s)
-	formats := []string{
+
+	// Try timezone-aware format first (RFC3339)
+	if t, err := time.Parse(time.RFC3339, s); err == nil {
+		return t
+	}
+
+	// Parse timezone-naive formats using the specified location
+	formatsLocal := []string{
 		"2006-01-02 15:04:05",
-		time.RFC3339,
 		"2006-01-02T15:04:05",
 		"02/01/2006 15:04:05",
 	}
 
-	for _, format := range formats {
-		if t, err := time.Parse(format, s); err == nil {
+	for _, format := range formatsLocal {
+		if t, err := time.ParseInLocation(format, s, loc); err == nil {
 			return t
 		}
 	}
+
 	return time.Time{}
 }

@@ -59,7 +59,7 @@ func TestCSVDataService_LoadAndGet(t *testing.T) {
 	}
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
-	service := NewCSVDataService(logger)
+	service := NewCSVDataService(logger, "Local")
 
 	// 1. Load File
 	err = service.LoadFile("file1", "Test File", filePath)
@@ -93,11 +93,12 @@ func TestCSVDataService_LoadAndGet(t *testing.T) {
 	}
 
 	// 3. Get Data (Time Range)
-	t1, err := time.Parse("2006-01-02 15:04:05", "2023-10-26 10:00:02")
+	// Now parse in Local timezone to match how CSV timestamps are parsed
+	t1, err := time.ParseInLocation("2006-01-02 15:04:05", "2023-10-26 10:00:02", time.Local)
 	if err != nil {
 		t.Fatal(err)
 	}
-	t2, err := time.Parse("2006-01-02 15:04:05", "2023-10-26 10:00:03")
+	t2, err := time.ParseInLocation("2006-01-02 15:04:05", "2023-10-26 10:00:03", time.Local)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -158,7 +159,7 @@ func TestCSVDataService_InvalidFiles(t *testing.T) {
 	}()
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
-	service := NewCSVDataService(logger)
+	service := NewCSVDataService(logger, "Local")
 
 	// Empty File
 	emptyPath := filepath.Join(tempDir, "empty.csv")
@@ -195,12 +196,12 @@ func TestCSVDataService_InvalidFiles(t *testing.T) {
 	}
 }
 func TestParseTimestamp(t *testing.T) {
-	ts := parseTimestamp("2023-10-26 12:00:00")
+	ts := parseTimestamp("2023-10-26 12:00:00", time.Local)
 	if ts.IsZero() {
 		t.Error("parseTimestamp valid failed")
 	}
 
-	tsInvalid := parseTimestamp("invalid")
+	tsInvalid := parseTimestamp("invalid", time.Local)
 	if !tsInvalid.IsZero() {
 		t.Error("parseTimestamp invalid should return zero")
 	}
@@ -220,7 +221,7 @@ func TestCSVDataService_LazyLoading(t *testing.T) {
 	}
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	service := NewCSVDataService(logger)
+	service := NewCSVDataService(logger, "Local")
 
 	// Register without loading
 	service.RegisterFile("lazy1", "Lazy File", filePath)
@@ -256,7 +257,7 @@ func TestCSVDataService_MaxFilesLimit(t *testing.T) {
 	defer func() { _ = os.RemoveAll(tempDir) }()
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	service := NewCSVDataService(logger)
+	service := NewCSVDataService(logger, "Local")
 
 	// Create a dummy CSV
 	path := filepath.Join(tempDir, "dummy.csv")
@@ -304,7 +305,7 @@ func TestCSVDataService_Downsampling(t *testing.T) {
 	}
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	service := NewCSVDataService(logger)
+	service := NewCSVDataService(logger, "Local")
 
 	if err := service.LoadFile("large", "Large", path); err != nil {
 		t.Fatalf("LoadFile failed: %v", err)
